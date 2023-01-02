@@ -1,0 +1,26 @@
+{
+  "name": "uwebhelpers",
+  "version": "1.0.0",
+  "description": "Helpers for uWebSockets.js. Decorators, Controllers and others helpers.",
+  "main": "/example/index.js",
+  "scripts": {
+    "example": "node ./example/src/index.js",
+    "serve": "tsc-watch --noClear -p ./tsconfig.json --onSuccess \"npm run example\""
+  },
+  "keywords": [
+    "uWebSockets",
+    "helpers",
+    "webserver",
+    "websocket"
+  ],
+  "author": "Kirill Kravchenko (undefined)",
+  "license": "ISC",
+  "dependencies": {
+    "tsc-watch": "^6.0.0",
+    "tslib": "^2.4.1",
+    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.15.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.18"
+  }
+}
