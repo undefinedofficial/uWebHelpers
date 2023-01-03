@@ -1,5 +1,40 @@
 import path from "path";
-import { Controller, Header, Parameter, Query, Route, Watch } from "../../uWebHelpers";
+import {
+  BodyStream,
+  Controller,
+  ControllerResult,
+  Header,
+  IViewModel,
+  JsonBody,
+  MimeTypeFindType,
+  Parameter,
+  Query,
+  Route,
+  StreamBody,
+  ViewModel,
+  Watch,
+} from "../../uWebHelpers";
+import { writeFileSync } from "fs";
+import { Response } from "uWebHelpers/models/responce.model";
+
+/* Example simple view model */
+class SimpleViewModel implements IViewModel {
+  name?: string;
+
+  /**
+   * Validate model
+   * @param obj object from body
+   * @returns void for success else return responce
+   */
+  Validate(obj: Record<string, any>): void | Response {
+    if (!obj["name"] || typeof obj["name"] !== "string")
+      return {
+        code: 400,
+        body: "No name",
+      };
+    this.name = obj["name"];
+  }
+}
 
 /** perfect controller :) */
 export class HomeController extends Controller {
@@ -83,5 +118,50 @@ export class HomeController extends Controller {
     console.log(path.resolve());
 
     return this.SendFile(path.resolve() + "/wwwroot/index.html");
+  }
+
+  /** How read body stream */
+  @Route("/stream", "POST")
+  @StreamBody()
+  public ReadStream(stream: BodyStream): ControllerResult {
+    return new Promise((resolve) => {
+      let buffer: Uint8Array;
+      stream.read(
+        (chunk) => {
+          if (buffer) {
+            buffer = new Uint8Array(buffer.byteLength + chunk.byteLength);
+            buffer.set(new Uint8Array(buffer), 0);
+            buffer.set(new Uint8Array(chunk), chunk.byteLength);
+          } else {
+            buffer = new Uint8Array(chunk);
+          }
+        },
+        () => {
+          let format = "txt";
+          if (stream.type) format = MimeTypeFindType(stream.type) || "txt";
+          writeFileSync(path.resolve() + "/wwwroot/file." + format, buffer);
+          resolve(this.SendText("Thank's!"));
+        },
+        () => {
+          console.log("The stream aborted");
+        }
+      );
+    });
+  }
+
+  /** How read body stream */
+  @Route("/json", "POST")
+  @JsonBody()
+  public PostJson(obj: object): ControllerResult {
+    console.log("Posted json:", obj);
+
+    return this.SendJson(obj);
+  }
+
+  /** How validate viewmodel */
+  @Route("/viewmodel", "POST")
+  @ViewModel(SimpleViewModel)
+  public ViewModel(model: SimpleViewModel) {
+    return this.SendText("Thank's " + model.name);
   }
 }

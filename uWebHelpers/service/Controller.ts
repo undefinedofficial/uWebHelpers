@@ -1,5 +1,5 @@
 import { HttpRequest, HttpResponse, RecognizedString } from "uWebSockets.js";
-import { DescriptorResult } from "../models/decorator.model";
+import { ControllerResult } from "../models/decorator.model";
 import { ServeStatic } from "./ServeStatic.service";
 
 export class Controller {
@@ -10,7 +10,7 @@ export class Controller {
     body: RecognizedString,
     statusCode: number = 200,
     headers?: { [k: string]: RecognizedString }
-  ): DescriptorResult {
+  ): ControllerResult {
     return {
       code: statusCode,
       body,
@@ -20,21 +20,21 @@ export class Controller {
   protected SendStatus(
     statusCode: number,
     headers?: { [k: string]: RecognizedString }
-  ): DescriptorResult {
+  ): ControllerResult {
     return { code: statusCode, headers };
   }
   protected SendJson(
     obj: object | Array<any>,
     statusCode: number = 200,
     headers?: { [k: string]: RecognizedString }
-  ): DescriptorResult {
+  ): ControllerResult {
     return {
       code: statusCode,
       body: JSON.stringify(obj),
       headers: { "Content-Type": "application/json", ...headers },
     };
   }
-  protected SendFile(path: string): DescriptorResult {
+  protected SendFile(path: string): ControllerResult {
     return new Promise((resolve) => {
       if (!this.res) return resolve({ code: 404 });
       ServeStatic(

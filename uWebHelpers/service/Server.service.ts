@@ -14,6 +14,7 @@ import { Controller } from "./Controller";
 import { Methods } from "../models/methods.model";
 import { ServeStatic, ServeStaticCache } from "./ServeStatic.service";
 import { Hub } from "./Hub";
+import { ClassArgument } from "uWebHelpers/models/classArg.model";
 
 let socket: us_listen_socket | null = null;
 let server: TemplatedApp | null = null;
@@ -39,11 +40,8 @@ export function AddRoute(method: Methods, pattern: RecognizedString, handler: Ha
   routes.set(method, new Map([[pattern, handler]]));
 }
 
-interface ClassArgument<C> {
-  new (...args: any): C;
-}
-type ControllerArgument<C extends Controller> = ClassArgument<C>;
-type HubArgument<H extends Hub<any>> = ClassArgument<H>;
+type ControllerArgument<C extends Controller> = ClassArgument<C, any>;
+type HubArgument<H extends Hub<any>> = ClassArgument<H, any>;
 type HubOptions = Omit<
   WebSocketBehavior,
   "open" | "pong" | "close" | "drain" | "message" | "ping" | "upgrade"

@@ -1,7 +1,8 @@
-import { HttpRequest, HttpResponse, RecognizedString } from "uWebSockets.js";
+import { HttpRequest, HttpResponse } from "uWebSockets.js";
 import { ControllerResult } from "../models/decorator.model";
+import { ReadStream } from "../service/ReadStream.service";
 
-export function Watch<T, A>() {
+export function StreamBody() {
   return function (
     target: Record<string, any>,
     propertyKey: string | symbol,
@@ -16,17 +17,7 @@ export function Watch<T, A>() {
 
       if (!request || responce["aborted"]) throw new Error("Not request");
 
-      console.log("Method: ", request.getMethod());
-      console.log("Url: ", request.getUrl());
-      console.log("Params: ", request.getQuery());
-
-      console.log("Begin Headers: ");
-      request.forEach((k, v) => {
-        console.log("   ", k, v);
-      });
-      console.log("End Headers");
-
-      return await handler.call(target, ...args);
+      return await handler.call(target, ...args, ReadStream(responce, request));
     };
   };
 }

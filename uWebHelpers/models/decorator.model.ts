@@ -1,5 +1,5 @@
 import { Response } from "./responce.model";
 
-type DescriptorResult = Promise<Response> | Response;
+type ControllerResult = Promise<Response> | Response;
 
-export { DescriptorResult };
+export { ControllerResult };

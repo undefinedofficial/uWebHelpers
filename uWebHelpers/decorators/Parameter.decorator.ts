@@ -1,11 +1,11 @@
 import { HttpRequest, HttpResponse } from "uWebSockets.js";
-import { DescriptorResult } from "../models/decorator.model";
+import { ControllerResult } from "../models/decorator.model";
 
 export function Parameter<T, A>(index = 0) {
   return function (
     target: Record<string, any>,
     propertyKey: string | symbol,
-    descriptor: TypedPropertyDescriptor<(...args: any) => DescriptorResult>
+    descriptor: TypedPropertyDescriptor<(...args: any) => ControllerResult>
   ) {
     if (!descriptor.value) throw new Error("Callback not defined");
 
