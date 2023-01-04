@@ -122,8 +122,10 @@ export class HomeController extends Controller {
 
   /** How read body stream */
   @Route("/stream", "POST")
+  @Header("content-type")
+  @Header("content-length")
   @StreamBody()
-  public ReadStream(stream: BodyStream): ControllerResult {
+  public ReadStream(type: string, stream: BodyStream, length: string): ControllerResult {
     return new Promise((resolve) => {
       let buffer: Uint8Array;
       stream.read(
@@ -137,9 +139,12 @@ export class HomeController extends Controller {
           }
         },
         () => {
-          let format = "txt";
-          if (stream.type) format = MimeTypeFindType(stream.type) || "txt";
-          writeFileSync(path.resolve() + "/wwwroot/file." + format, buffer);
+          const format = MimeTypeFindType(type) || "txt";
+          const pathfile = path.resolve() + "/wwwroot/file." + format;
+          writeFileSync(pathfile, buffer);
+          console.log("file saved:", pathfile);
+          console.log("file length:", length);
+
           resolve(this.SendText("Thank's!"));
         },
         () => {

@@ -17,14 +17,14 @@ export function ViewModel<T>(viewmodel: ClassViewModel, ...vmArgs: any[]) {
       const responce = target["res"] as HttpResponse;
 
       if (!request || responce["aborted"]) throw new Error("Not request");
-      const stream = ReadStream(responce, request);
-      if (stream.type !== "application/json") {
+      if (request.getHeader("content-type") !== "application/json") {
         return {
           code: 415,
           body: "Unsupported Media Type",
         };
       }
 
+      const stream = ReadStream(responce, request);
       let buffer: Buffer;
       return new Promise((resolve) => {
         stream.read(

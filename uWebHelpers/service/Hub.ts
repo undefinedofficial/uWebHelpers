@@ -2,18 +2,34 @@ import {
   HttpRequest,
   HttpResponse,
   RecognizedString,
+  TemplatedApp,
   WebSocket,
-  WebSocketBehavior,
   us_socket_context_t,
 } from "uWebSockets.js";
+import { GetInstanseApp } from "./Server.service";
 
-export type WebSocketConnection<T> = Partial<T> & WebSocket;
+export type WebSocketConnection<T> = Partial<T> &
+  WebSocket & {
+    id: number;
+  };
 
-export abstract class Hub<T>
-  implements
-    Required<Pick<WebSocketBehavior, "open" | "close" | "message" | "upgrade" | "drain">>
-{
-  public upgrade(res: HttpResponse, req: HttpRequest, context: us_socket_context_t) {
+type InvokeKey = string | number;
+type InvokeCallback<T> = (ws: WebSocketConnection<T>, payload: any) => void;
+
+interface IHub<T> {
+  OnConnect(req: HttpRequest): T;
+  OnOpen(connection: WebSocketConnection<T>): void;
+  OnClose(connection: WebSocketConnection<T>, code: number, message: ArrayBuffer): void;
+}
+
+export abstract class Hub<T> implements IHub<T> {
+  private emits: Record<InvokeKey, InvokeCallback<T>> = {};
+  SetInvoke(key: InvokeKey, event: InvokeCallback<T>) {
+    this.emits[key] = event;
+  }
+
+  private App: TemplatedApp = GetInstanseApp();
+  private upgrade(res: HttpResponse, req: HttpRequest, context: us_socket_context_t) {
     res.onAborted(() => (res.aborted = true));
     /* You MUST copy data out of req here, as req is only valid within this immediate callback */
     const secWebSocketKey = req.getHeader("sec-websocket-key");
@@ -22,7 +38,7 @@ export abstract class Hub<T>
 
     /* This immediately calls open handler, you must not use res after this call */
     return res.upgrade(
-      {},
+      this.OnConnect(req),
       /* Use our copies here */
       secWebSocketKey,
       secWebSocketProtocol,
@@ -30,27 +46,27 @@ export abstract class Hub<T>
       context
     );
   }
-
-  public open(ws: WebSocket) {
+  private open(ws: WebSocketConnection<T>) {
     this.OnOpen(ws as WebSocketConnection<T>);
   }
-  public close(ws: WebSocket, code: number, message: ArrayBuffer) {
+  private close(ws: WebSocketConnection<T>, code: number, message: ArrayBuffer) {
     this.OnClose(ws as WebSocketConnection<T>, code, message);
   }
-  public message(ws: WebSocket, message: ArrayBuffer, isBinary: boolean) {
-    this.OnMessage(ws as WebSocketConnection<T>, message, isBinary);
+  private message(ws: WebSocketConnection<T>, message: ArrayBuffer, isBinary: boolean) {
+    try {
+      const data = JSON.parse(Buffer.from(message).toString());
+      if (this.emits[data.f]) this.emits[data.f](ws, data.p);
+    } catch {}
   }
-  public drain(ws: WebSocket) {
+  private drain(ws: WebSocketConnection<T>) {
     console.warn("Drain not implemented!");
   }
 
-  public abstract OnOpen(connection: WebSocketConnection<T>): void;
-  public abstract OnMessage(
-    connection: WebSocketConnection<T>,
-    message: ArrayBuffer,
-    isBinary: boolean
-  ): void;
-  public abstract OnClose(
+  // private groups = new Map<number, Array<WebSocketConnection<T>>>();
+
+  abstract OnConnect(req: HttpRequest): T;
+  abstract OnOpen(connection: WebSocketConnection<T>): void;
+  abstract OnClose(
     connection: WebSocketConnection<T>,
     code: number,
     message: ArrayBuffer

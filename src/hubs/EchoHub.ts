@@ -1,22 +1,20 @@
+import { HttpRequest } from "uWebSockets.js";
 import { WebSocketConnection } from "uWebHelpers/service/Hub";
 import { Hub } from "../../uWebHelpers";
 
 interface MetaData {
-  id: number;
+  name: string;
 }
 
 export class EchoHub extends Hub<MetaData> {
+  public OnConnect(req: HttpRequest): MetaData {
+    return {
+      name: "socket",
+    };
+  }
   public OnOpen(connection: WebSocketConnection<MetaData>): void {
     connection.id = Date.now();
     console.log("connected id: ", connection.id);
-  }
-  public OnMessage(
-    connection: WebSocketConnection<MetaData>,
-    message: ArrayBuffer,
-    isBinary: boolean
-  ): void {
-    console.log("received message: ", Buffer.from(message).toString());
-    connection.send(message, isBinary);
   }
   public OnClose(
     connection: WebSocketConnection<MetaData>,
@@ -24,5 +22,14 @@ export class EchoHub extends Hub<MetaData> {
     message: ArrayBuffer
   ): void {
     console.log("disconnected id: ", connection.id);
+  }
+
+  public Echo(ws: WebSocketConnection<MetaData>, data: any) {
+    console.log(ws.name, "received message: ", data);
+    ws.send(data.toString());
+  }
+  constructor() {
+    super();
+    this.SetInvoke(0, this.Echo);
   }
 }

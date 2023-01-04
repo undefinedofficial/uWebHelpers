@@ -47,10 +47,14 @@ type HubOptions = Omit<
   "open" | "pong" | "close" | "drain" | "message" | "ping" | "upgrade"
 >;
 
+type WebSocketHub = Required<
+  Pick<WebSocketBehavior, "open" | "close" | "message" | "upgrade" | "drain">
+>;
+
 export function CreateServer({ showmap }: CreateOptions = {}, options?: AppOptions) {
   const app = options ? SSLApp(options) : App();
   const controllers: Array<Controller> = [];
-  const hubs: Array<Hub<any>> = [];
+  const hubs: Array<WebSocketHub> = [];
 
   console.log("🗲  Server starting...");
 
@@ -123,6 +127,8 @@ export function CreateServer({ showmap }: CreateOptions = {}, options?: AppOptio
   });
   if (showmap) console.log();
 
+  server = app;
+
   const Run = (
     host: string,
     port: number,
@@ -138,8 +144,6 @@ export function CreateServer({ showmap }: CreateOptions = {}, options?: AppOptio
           : `\t Failed to listen to port ${port}`
       );
     });
-
-    server = app;
 
     routes.clear();
   };
@@ -166,14 +170,15 @@ export function CreateServer({ showmap }: CreateOptions = {}, options?: AppOptio
     options?: HubOptions,
     ...args: any[]
   ) {
-    const handlers = new hub(...args);
+    const handlers = new hub(...args) as WebSocketHub;
     app.ws(pattern, {
       ...options,
-      upgrade: handlers.upgrade,
-      open: handlers.open,
-      message: handlers.message,
-      drain: handlers.drain,
-      close: handlers.close,
+      upgrade: (res, req, ctx) => handlers.upgrade.call(handlers, res, req, ctx),
+      open: (conn) => handlers.open.call(handlers, conn),
+      message: (conn, msg, isBinary) =>
+        handlers.message.call(handlers, conn, msg, isBinary),
+      drain: (conn) => handlers.drain.call(handlers, conn),
+      close: (conn, code, message) => handlers.close.call(handlers, conn, code, message),
     });
     hubs.push(handlers);
   }
