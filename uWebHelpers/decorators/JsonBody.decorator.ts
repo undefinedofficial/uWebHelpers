@@ -1,7 +1,7 @@
 import { HttpRequest, HttpResponse } from "uWebSockets.js";
 import { ControllerResult } from "../models/decorator.model";
 import { ReadStream } from "../service/ReadStream.service";
-import { HttpCodes } from "uWebHelpers/models/HttpCodes";
+import { HttpCodes } from "../models/HttpCodes";
 
 export function JsonBody() {
   return function (

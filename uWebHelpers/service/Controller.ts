@@ -1,7 +1,7 @@
 import { HttpRequest, HttpResponse, RecognizedString } from "uWebSockets.js";
-import { ControllerResult } from "../models/decorator.model";
+import { ControllerResult } from "../models";
 import { ServeStatic } from "./ServeStatic.service";
-import { HttpCodes } from "uWebHelpers/models/HttpCodes";
+import { HttpCodes } from "../models";
 
 type HeaderList = { [k: string]: RecognizedString };
 

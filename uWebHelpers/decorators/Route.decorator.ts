@@ -2,7 +2,7 @@ import { RecognizedString } from "uWebSockets.js";
 import { Methods } from "../models/methods.model";
 import { AddRoute } from "../service/Server.service";
 import { ControllerResult } from "../models/decorator.model";
-import { HttpCodes } from "uWebHelpers/models/HttpCodes";
+import { HttpCodes } from "../models/HttpCodes";
 
 export function Route<T, A>(pattern: RecognizedString, method: Methods = "GET") {
   return function (

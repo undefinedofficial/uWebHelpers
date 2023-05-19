@@ -2,10 +2,15 @@
   "name": "uwebhelpers",
   "version": "1.0.0",
   "description": "Helpers for uWebSockets.js. Decorators, Controllers and others helpers.",
-  "main": "example/src/index.js",
-  "type": "module",
+  "main": "dist/ajv.js",
+  "types": "dist/ajv.d.ts",
+  "files": [
+    "uWebHelpers/",
+    "dist/"
+  ],
   "exports": "./uWebHelpers",
   "scripts": {
+    "build": "tsc -p ./tsconfig.json",
     "example": "node ./example/src/index.js",
     "serve": "tsc-watch --noClear -p ./tsconfig.json --onSuccess \"npm run example\""
   },

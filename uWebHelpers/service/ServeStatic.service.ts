@@ -1,4 +1,4 @@
-import { createReadStream, lstatSync, statSync } from "fs";
+import { createReadStream, lstatSync } from "fs";
 import { HttpRequest, HttpResponse } from "uWebSockets.js";
 import { FindByFormat } from "./MimeTypes.service";
 import { extname } from "path";
@@ -57,20 +57,14 @@ const getFileStats = (filePath: string) => {
   if (!stats || stats.isDirectory()) return;
 
   const fileExtension = extname(filePath);
-  const contentType =
-    FindByFormat(fileExtension.substring(1)) || "application/octet-stream";
+  const contentType = FindByFormat(fileExtension.substring(1)) || "application/octet-stream";
   const { mtime, size } = stats;
   const lastModified = mtime.toUTCString();
 
   return { filePath, lastModified, size, contentType };
 };
 
-function ServeStatic(
-  res: HttpResponse,
-  path: string,
-  err: () => void,
-  success?: () => void
-) {
+function ServeStatic(res: HttpResponse, path: string, err: () => void, success?: () => void) {
   const stats = getFileStats(path);
   if (!stats) return err();
   res.writeHeader("Content-Type", stats.contentType);

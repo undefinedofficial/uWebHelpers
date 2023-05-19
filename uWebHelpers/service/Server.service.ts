@@ -14,7 +14,7 @@ import { Controller } from "./Controller";
 import { Methods } from "../models/methods.model";
 import { ServeStatic, ServeStaticCache } from "./ServeStatic.service";
 import { Hub } from "./Hub";
-import { ClassArgument } from "uWebHelpers/models/classArg.model";
+import { ClassArgument } from "../models/classArg.model";
 
 let socket: us_listen_socket | null = null;
 let server: TemplatedApp | null = null;

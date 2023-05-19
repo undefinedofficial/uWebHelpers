@@ -2,7 +2,7 @@ import { HttpRequest, HttpResponse, RecognizedString } from "uWebSockets.js";
 import { ControllerResult } from "../models/decorator.model";
 import { ClassViewModel } from "../models/ViewModel.model";
 import { ReadStream } from "../service/ReadStream.service";
-import { HttpCodes } from "uWebHelpers/models/HttpCodes";
+import { HttpCodes } from "../models/HttpCodes";
 
 export function ViewModel<T>(viewmodel: ClassViewModel, ...vmArgs: any[]) {
   return function (

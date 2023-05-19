@@ -1,4 +1,4 @@
-import { BodyStream } from "uWebHelpers/models/BodyStream.model";
+import { BodyStream } from "../models/BodyStream.model";
 import { HttpRequest, HttpResponse } from "uWebSockets.js";
 
 /* Helper function for reading a posted body */

@@ -1,6 +1,5 @@
 import { HttpRequest } from "uWebSockets.js";
-import { WebSocketConnection } from "uWebHelpers/service/Hub";
-import { Hub } from "../../uWebHelpers";
+import { Hub, WebSocketConnection } from "../../uWebHelpers";
 
 interface MetaData {
   name: string;

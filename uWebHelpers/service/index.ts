@@ -1,6 +1,6 @@
 import { CreateServer, GetInstanseApp } from "./Server.service";
 import { Controller } from "./Controller";
-import { Hub } from "./Hub";
+import { Hub, WebSocketConnection } from "./Hub";
 import { FindByFormat, FindByType } from "./MimeTypes.service";
 
 export {
@@ -8,6 +8,7 @@ export {
   GetInstanseApp,
   Controller,
   Hub,
+  WebSocketConnection,
   FindByFormat as MimeTypeFindFormat,
   FindByType as MimeTypeFindType,
 };

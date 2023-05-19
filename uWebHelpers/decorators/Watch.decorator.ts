@@ -1,4 +1,4 @@
-import { HttpRequest, HttpResponse, RecognizedString } from "uWebSockets.js";
+import { HttpRequest, HttpResponse } from "uWebSockets.js";
 import { ControllerResult } from "../models/decorator.model";
 
 export function Watch<T, A>() {
