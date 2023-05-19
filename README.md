@@ -2,6 +2,10 @@
 
 Build for [uWebSockets.js](https://github.com/uNetworking/uWebSockets.js). Controllers system and Decorators.
 
+```diff
+! WebSocket Hubs not finishet yet
+```
+
 ## Example add simple controller
 
 ```javascript
