@@ -125,8 +125,10 @@ export class HomeController extends Controller {
   @Header("content-type")
   @Header("content-length")
   @StreamBody()
-  public ReadStream(type: string, stream: BodyStream, length: string): ControllerResult {
+  public ReadStream(type: string, length: string, stream: BodyStream): ControllerResult {
     return new Promise((resolve) => {
+      console.log(type, stream, length);
+
       let buffer: Uint8Array;
       stream(
         (chunk) => {
