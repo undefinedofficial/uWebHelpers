@@ -11,7 +11,8 @@
     "uWebSockets",
     "helpers",
     "webserver",
-    "websocket"
+    "websocket",
+    "Controllers"
   ],
   "author": "Kirill Kravchenko (undefined)",
   "license": "ISC",
