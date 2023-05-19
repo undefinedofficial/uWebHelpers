@@ -2,6 +2,7 @@
   "name": "uwebhelpers",
   "version": "1.0.0",
   "description": "Helpers for uWebSockets.js. Decorators, Controllers and others helpers.",
+  "type": "module",
   "main": "dist/ajv.js",
   "types": "dist/ajv.d.ts",
   "files": [
