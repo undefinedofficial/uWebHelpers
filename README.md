@@ -22,7 +22,7 @@ server.Run("127.0.0.1", 5000);
 
 ```javascript
 /** HomeController.ts */
-import { Controller, Header, Parameter, Query, Route, Watch } from "../uWebHelpers";
+import { Controller, Route } from "../uWebHelpers";
 
 export class HomeController extends Controller {
   constructor(/* args */) {
@@ -35,6 +35,42 @@ export class HomeController extends Controller {
   public Method() {
     /* Sending status, text, json, static files */
     return this.SendText("I'm any method!");
+  }
+}
+```
+
+## Example ajv validate the request body
+
+```javascript
+/** HomeController.ts */
+import { Controller, AjvModel, Route } from "../uWebHelpers";
+
+export class HomeController extends Controller {
+  constructor(/* args */) {
+    super();
+    console.log("Create Home Controller");
+  }
+
+  @Route("/ajvmodel", "POST")
+  // ajv schema
+  @AjvModel({
+    type: "object",
+    properties: {
+      name: { type: "string" },
+    },
+    required: ["name"],
+    additionalProperties: false,
+    errorMessage: {
+      type: "should be an object",
+      required: "should have property name",
+      additionalProperties: "should not have properties other than name",
+      properties: {
+        name: "should be an string",
+      },
+    },
+  })
+  public AjvModel(model: object) {
+    return this.SendJson({ model: "accept", ...model });
   }
 }
 ```
