@@ -2,7 +2,7 @@
   "name": "uwebhelpers",
   "version": "1.0.0",
   "description": "Helpers for uWebSockets.js. Decorators, Controllers and others helpers.",
-  "main": "/example/index.js",
+  "main": "/uWebHelpers/index.ts",
   "scripts": {
     "example": "node ./example/src/index.js",
     "serve": "tsc-watch --noClear -p ./tsconfig.json --onSuccess \"npm run example\""
