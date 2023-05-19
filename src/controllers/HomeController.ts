@@ -1,21 +1,23 @@
 import path from "path";
 import {
+  AjvModel,
   BodyStream,
   Controller,
   ControllerResult,
   Header,
+  HttpCodes,
   IViewModel,
   JsonBody,
   MimeTypeFindType,
   Parameter,
   Query,
+  Response,
   Route,
   StreamBody,
   ViewModel,
   Watch,
 } from "../../uWebHelpers";
 import { writeFileSync } from "fs";
-import { Response } from "uWebHelpers/models/responce.model";
 
 /* Example simple view model */
 class SimpleViewModel implements IViewModel {
@@ -29,7 +31,7 @@ class SimpleViewModel implements IViewModel {
   Validate(obj: Record<string, any>): void | Response {
     if (!obj["name"] || typeof obj["name"] !== "string")
       return {
-        code: 400,
+        code: HttpCodes.BAD_REQUEST,
         body: "No name",
       };
     this.name = obj["name"];
@@ -51,13 +53,13 @@ export class HomeController extends Controller {
   /** How add handler in any request  */
   @Route("/bad", "ANY")
   public BadMethod() {
-    return this.SendStatus(400);
+    return this.SendStatus(HttpCodes.BAD_REQUEST);
   }
 
   /** How send only status  */
   @Route("/code")
   public Code() {
-    return this.SendStatus(200);
+    return this.SendStatus(HttpCodes.OK);
   }
 
   /** How send json  */
@@ -115,9 +117,7 @@ export class HomeController extends Controller {
   /** How send file */
   @Route("/file")
   public File() {
-    console.log(path.resolve());
-
-    return this.SendFile(path.resolve() + "/wwwroot/index.html");
+    return this.SendFile(path.resolve("./wwwroot/index.html"));
   }
 
   /** How read body stream */
@@ -128,7 +128,7 @@ export class HomeController extends Controller {
   public ReadStream(type: string, stream: BodyStream, length: string): ControllerResult {
     return new Promise((resolve) => {
       let buffer: Uint8Array;
-      stream.read(
+      stream(
         (chunk) => {
           if (buffer) {
             buffer = new Uint8Array(buffer.byteLength + chunk.byteLength);
@@ -140,7 +140,7 @@ export class HomeController extends Controller {
         },
         () => {
           const format = MimeTypeFindType(type) || "txt";
-          const pathfile = path.resolve() + "/wwwroot/file." + format;
+          const pathfile = path.resolve("./wwwroot/file." + format);
           writeFileSync(pathfile, buffer);
           console.log("file saved:", pathfile);
           console.log("file length:", length);
@@ -168,5 +168,27 @@ export class HomeController extends Controller {
   @ViewModel(SimpleViewModel)
   public ViewModel(model: SimpleViewModel) {
     return this.SendText("Thank's " + model.name);
+  }
+
+  /** How validate on ajv schemas */
+  @Route("/ajvmodel", "POST")
+  @AjvModel({
+    type: "object",
+    properties: {
+      name: { type: "string" },
+    },
+    required: ["name"],
+    additionalProperties: false,
+    errorMessage: {
+      type: "should be an object",
+      required: "should have property name",
+      additionalProperties: "should not have properties other than name",
+      properties: {
+        name: "should be an string",
+      },
+    },
+  })
+  public AjvModel(model: object) {
+    return this.SendJson({ model: "accept", ...model });
   }
 }

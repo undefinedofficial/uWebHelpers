@@ -1,5 +1,3 @@
-import { format } from "path";
-
 const mime_types: Record<string, string> = {
   ico: "image/x-icon",
   a: "application/octet-stream",

@@ -3,16 +3,13 @@ import { HttpRequest, HttpResponse } from "uWebSockets.js";
 
 /* Helper function for reading a posted body */
 export function ReadStream(res: HttpResponse, req: HttpRequest): BodyStream {
-  function read(edata: (chunk: ArrayBuffer) => void, eend: () => void, eerr: () => void) {
+  return function (edata: (chunk: ArrayBuffer) => void, end: () => void, err: () => void) {
     res.onData((ab, isLast) => {
       edata(ab);
       if (isLast) {
-        eend();
+        end();
       }
     });
-    res.onAborted(eerr);
-  }
-  return {
-    read,
+    res.onAborted(err);
   };
 }

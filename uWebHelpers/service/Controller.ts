@@ -1,6 +1,9 @@
 import { HttpRequest, HttpResponse, RecognizedString } from "uWebSockets.js";
 import { ControllerResult } from "../models/decorator.model";
 import { ServeStatic } from "./ServeStatic.service";
+import { HttpCodes } from "uWebHelpers/models/HttpCodes";
+
+type HeaderList = { [k: string]: RecognizedString };
 
 export class Controller {
   private req?: HttpRequest;
@@ -8,41 +11,48 @@ export class Controller {
 
   protected SendText(
     body: RecognizedString,
-    statusCode: number = 200,
+    code: string | HttpCodes = HttpCodes.OK,
     headers?: { [k: string]: RecognizedString }
   ): ControllerResult {
     return {
-      code: statusCode,
+      code,
       body,
       headers: { "Content-Type": "text/plain; charset=utf-8", ...headers },
     };
   }
   protected SendStatus(
-    statusCode: number,
+    code: HttpCodes | string = HttpCodes.OK,
     headers?: { [k: string]: RecognizedString }
   ): ControllerResult {
-    return { code: statusCode, headers };
+    return { code, headers };
   }
   protected SendJson(
     obj: object | Array<any>,
-    statusCode: number = 200,
-    headers?: { [k: string]: RecognizedString }
+    code: HttpCodes | string = HttpCodes.OK,
+    headers?: HeaderList
   ): ControllerResult {
     return {
-      code: statusCode,
+      code,
       body: JSON.stringify(obj),
       headers: { "Content-Type": "application/json", ...headers },
     };
   }
   protected SendFile(path: string): ControllerResult {
     return new Promise((resolve) => {
-      if (!this.res) return resolve({ code: 404 });
+      if (!this.res) return resolve({ code: HttpCodes.NOT_FOUND });
       ServeStatic(
         this.res,
         path,
-        () => resolve({ code: 404 }),
-        () => resolve({ code: 200 })
+        () => resolve({ code: HttpCodes.NOT_FOUND }),
+        () => resolve({ code: HttpCodes.OK })
       );
     });
+  }
+  protected SendError(
+    err: Error,
+    statusCode: HttpCodes | string = HttpCodes.BAD_REQUEST,
+    headers?: HeaderList
+  ): ControllerResult {
+    return this.SendJson({ error: err.message }, statusCode, headers);
   }
 }

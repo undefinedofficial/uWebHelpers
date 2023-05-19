@@ -1,7 +1,6 @@
 import {
   HttpRequest,
   HttpResponse,
-  RecognizedString,
   TemplatedApp,
   WebSocket,
   us_socket_context_t,
@@ -9,7 +8,7 @@ import {
 import { GetInstanseApp } from "./Server.service";
 
 export type WebSocketConnection<T> = Partial<T> &
-  WebSocket & {
+  WebSocket<any> & {
     id: number;
   };
 
@@ -66,9 +65,5 @@ export abstract class Hub<T> implements IHub<T> {
 
   abstract OnConnect(req: HttpRequest): T;
   abstract OnOpen(connection: WebSocketConnection<T>): void;
-  abstract OnClose(
-    connection: WebSocketConnection<T>,
-    code: number,
-    message: ArrayBuffer
-  ): void;
+  abstract OnClose(connection: WebSocketConnection<T>, code: number, message: ArrayBuffer): void;
 }

@@ -43,12 +43,12 @@ export function AddRoute(method: Methods, pattern: RecognizedString, handler: Ha
 type ControllerArgument<C extends Controller> = ClassArgument<C, any>;
 type HubArgument<H extends Hub<any>> = ClassArgument<H, any>;
 type HubOptions = Omit<
-  WebSocketBehavior,
+  WebSocketBehavior<any>,
   "open" | "pong" | "close" | "drain" | "message" | "ping" | "upgrade"
 >;
 
 type WebSocketHub = Required<
-  Pick<WebSocketBehavior, "open" | "close" | "message" | "upgrade" | "drain">
+  Pick<WebSocketBehavior<any>, "open" | "close" | "message" | "upgrade" | "drain">
 >;
 
 export function CreateServer({ showmap }: CreateOptions = {}, options?: AppOptions) {
@@ -62,66 +62,41 @@ export function CreateServer({ showmap }: CreateOptions = {}, options?: AppOptio
   routes.forEach((pairs, method) => {
     if (showmap) console.log(method + ": ");
 
+    const initPattern = (pattern: RecognizedString, handler: Handler, callback: Function) => {
+      if (showmap) console.log("    " + pattern);
+      callback.call(app, pattern, handler);
+    };
+
     switch (method) {
       case "GET":
-        pairs.forEach((handler, pattern) => {
-          if (showmap) console.log("    " + pattern);
-          app.get(pattern, handler);
-        });
+        pairs.forEach((handler, pattern) => initPattern(pattern, handler, app.get));
         break;
       case "HEAD":
-        pairs.forEach((handler, pattern) => {
-          if (showmap) console.log("    " + pattern);
-          app.head(pattern, handler);
-        });
+        pairs.forEach((handler, pattern) => initPattern(pattern, handler, app.head));
         break;
       case "POST":
-        pairs.forEach((handler, pattern) => {
-          if (showmap) console.log("    " + pattern);
-          app.post(pattern, handler);
-        });
+        pairs.forEach((handler, pattern) => initPattern(pattern, handler, app.post));
         break;
       case "PUT":
-        pairs.forEach((handler, pattern) => {
-          if (showmap) console.log("    " + pattern);
-          app.put(pattern, handler);
-        });
+        pairs.forEach((handler, pattern) => initPattern(pattern, handler, app.put));
         break;
       case "PATCH":
-        pairs.forEach((handler, pattern) => {
-          if (showmap) console.log("    " + pattern);
-          app.patch(pattern, handler);
-        });
+        pairs.forEach((handler, pattern) => initPattern(pattern, handler, app.patch));
         break;
       case "DELETE":
-        pairs.forEach((handler, pattern) => {
-          if (showmap) console.log("    " + pattern);
-          app.del(pattern, handler);
-        });
+        pairs.forEach((handler, pattern) => initPattern(pattern, handler, app.del));
         break;
       case "CONNECT":
-        pairs.forEach((handler, pattern) => {
-          if (showmap) console.log("    " + pattern);
-          app.connect(pattern, handler);
-        });
+        pairs.forEach((handler, pattern) => initPattern(pattern, handler, app.connect));
         break;
       case "TRACE":
-        pairs.forEach((handler, pattern) => {
-          if (showmap) console.log("    " + pattern);
-          app.trace(pattern, handler);
-        });
+        pairs.forEach((handler, pattern) => initPattern(pattern, handler, app.trace));
         break;
       case "OPTIONS":
-        pairs.forEach((handler, pattern) => {
-          if (showmap) console.log("    " + pattern);
-          app.options(pattern, handler);
-        });
+        pairs.forEach((handler, pattern) => initPattern(pattern, handler, app.options));
         break;
       case "ANY":
-        pairs.forEach((handler, pattern) => {
-          if (showmap) console.log("    " + pattern);
-          app.any(pattern, handler);
-        });
+        pairs.forEach((handler, pattern) => initPattern(pattern, handler, app.any));
         break;
     }
   });
@@ -129,11 +104,7 @@ export function CreateServer({ showmap }: CreateOptions = {}, options?: AppOptio
 
   server = app;
 
-  const Run = (
-    host: string,
-    port: number,
-    serverNameCallback?: (hostname: string) => void
-  ) => {
+  const Run = (host: string, port: number, serverNameCallback?: (hostname: string) => void) => {
     if (serverNameCallback) app?.missingServerName(serverNameCallback);
     app?.listen(host, port, (listenSocket) => {
       socket = listenSocket;
@@ -158,10 +129,7 @@ export function CreateServer({ showmap }: CreateOptions = {}, options?: AppOptio
     return app?.addServerName(hostname, options);
   };
 
-  function AddController<C extends Controller>(
-    controller: ControllerArgument<C>,
-    ...args: any[]
-  ) {
+  function AddController<C extends Controller>(controller: ControllerArgument<C>, ...args: any[]) {
     controllers.push(new controller(args));
   }
   function AddHub<H extends Hub<any>>(
@@ -175,8 +143,7 @@ export function CreateServer({ showmap }: CreateOptions = {}, options?: AppOptio
       ...options,
       upgrade: (res, req, ctx) => handlers.upgrade.call(handlers, res, req, ctx),
       open: (conn) => handlers.open.call(handlers, conn),
-      message: (conn, msg, isBinary) =>
-        handlers.message.call(handlers, conn, msg, isBinary),
+      message: (conn, msg, isBinary) => handlers.message.call(handlers, conn, msg, isBinary),
       drain: (conn) => handlers.drain.call(handlers, conn),
       close: (conn, code, message) => handlers.close.call(handlers, conn, code, message),
     });
@@ -202,8 +169,7 @@ export function CreateServer({ showmap }: CreateOptions = {}, options?: AppOptio
 
         if (isDefault && url[url.length - 1] === "/") url += isDefault;
         ServeStaticCache(res, req, path + url, () => {
-          if (isSinglePage)
-            return ServeStatic(res, path + "/" + isDefault, () => NotFound(res));
+          if (isSinglePage) return ServeStatic(res, path + "/" + isDefault, () => NotFound(res));
 
           NotFound(res);
         });
@@ -215,8 +181,7 @@ export function CreateServer({ showmap }: CreateOptions = {}, options?: AppOptio
 
       if (isDefault && url[url.length - 1] === "/") url += isDefault;
       ServeStatic(res, path + url, () => {
-        if (isSinglePage)
-          return ServeStatic(res, path + "/" + isDefault, () => NotFound(res));
+        if (isSinglePage) return ServeStatic(res, path + "/" + isDefault, () => NotFound(res));
 
         NotFound(res);
       });
